@@ -10,7 +10,7 @@ from datetime import datetime
 
 # Set Streamlit page config as the first command
 st.set_page_config(
-    page_title="Emotion Detection",
+    page_title="Mental Emotion Detection",
     page_icon="😀",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -199,8 +199,8 @@ emotion_colors = {
 # App header section
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.title("Facial Emotion Detection")
-    st.markdown("Upload an image to analyze the emotions of faces")
+    st.title("Human Mental Health Condition Detection")
+    st.markdown("Upload an image to mental health condition of faces")
 
 # Define sidebar
 with st.sidebar:
@@ -271,8 +271,8 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### About")
     st.info(
-        "This application uses a pre-trained convolutional neural network "
-        "to detect emotions from facial expressions in images."
+        "Made By Aritrik Ghosh "
+        "B.Tech CSE 2021-25."
     )
 
 # Main content based on selected mode
@@ -730,7 +730,7 @@ elif app_mode == "Batch Processing":
 # Footer
 footer_html = """
 <div style="text-align: center; margin-top: 30px; padding: 20px; color: #6B7280;">
-    <p>Facial Emotion Detection App • Powered by Machine Learning</p>
+    <p>Made with ❤️ by Aritrik Ghosh</p>
 </div>
 """
 st.markdown(footer_html, unsafe_allow_html=True)
