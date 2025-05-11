@@ -4,6 +4,7 @@ import numpy as np
 from keras.models import load_model
 from PIL import Image
 import os
+import time
 
 # Load model and Haar Cascade
 model = load_model('model.h5')
@@ -58,7 +59,7 @@ if uploaded_file is not None:
             st.sidebar.success(f"Saved face image: {filename}")
 
     # Display image with bounding box and label
-    st.image(img_array, caption="Processed Image", use_column_width=True)
+    st.image(img_array, caption="Processed Image", use_container_width=True)
 
 else:
     st.info("Please upload an image to start the emotion detection.")
