@@ -8,7 +8,7 @@ import time
 import base64
 from datetime import datetime
 
-# Set Streamlit page config as the first command
+
 st.set_page_config(
     page_title="Mental Emotion Detection",
     page_icon="😀",
@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Define custom color scheme
+
 primary_color = "#4F46E5"  # Indigo
 secondary_color = "#7C3AED"  # Purple
 light_bg = "#F9FAFB"
@@ -25,7 +25,7 @@ success_color = "#10B981"  # Green
 warning_color = "#F59E0B"  # Amber
 error_color = "#EF4444"  # Red
 
-# Apply custom CSS
+
 st.markdown("""
 <style>
     /* Main elements */
@@ -166,7 +166,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Load model and Haar Cascade
+
 @st.cache_resource
 def load_detection_resources():
     try:
@@ -179,12 +179,12 @@ def load_detection_resources():
 
 model, face_cascade = load_detection_resources()
 
-# Check if resources loaded correctly
+
 if model is None or face_cascade is None or face_cascade.empty():
     st.error("Critical error: Required detection resources couldn't be loaded. Please check file paths.")
     st.stop()
 
-# Constants
+
 emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 emotion_colors = {
     'Angry': '#EF4444',
@@ -196,17 +196,17 @@ emotion_colors = {
     'Neutral': '#6B7280'
 }
 
-# App header section
+
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.title("Human Mental Health Condition Detection")
-    st.markdown("Upload an image to mental health condition of faces")
+    st.markdown("Upload an image to detect mental health condition of faces")
 
-# Define sidebar
+
 with st.sidebar:
     st.header("Settings & Options")
     
-    # Application modes
+   
     app_mode = st.radio(
         "Choose Mode",
         ["Single Image Analysis", "Batch Processing"]
@@ -214,7 +214,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Detection settings
+   s
     st.subheader("Detection Settings")
     
     detection_confidence = st.slider(
@@ -255,8 +255,7 @@ with st.sidebar:
             value="detected_faces",
             help="Directory where detected faces will be saved"
         )
-        
-        # Create directory if it doesn't exist
+
         os.makedirs(save_directory, exist_ok=True)
     
     st.markdown("---")
@@ -267,17 +266,15 @@ with st.sidebar:
     show_bounding_boxes = st.checkbox("Show Bounding Boxes", value=True)
     bounding_box_thickness = st.slider("Box Thickness", 1, 5, 2)
     
-    # About section
     st.markdown("---")
     st.markdown("### About")
     st.info(
         "Made By Aritrik Ghosh "
         "B.Tech CSE 2021-25."
+        "Swami Vivekananda University"
     )
 
-# Main content based on selected mode
 if app_mode == "Single Image Analysis":
-    # Create two columns layout
     col1, col2 = st.columns([1, 1])
     
     with col1:
@@ -290,9 +287,9 @@ if app_mode == "Single Image Analysis":
         )
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Process uploaded image
+
     if uploaded_file is not None:
-        # Create a placeholder for the progress bar
+      
         progress_placeholder = st.empty()
         
         with progress_placeholder.container():
@@ -304,7 +301,7 @@ if app_mode == "Single Image Analysis":
             progress_bar.progress(10)
             time.sleep(0.1)
             
-            # Open and process the image
+         
             try:
                 # Load and convert image
                 progress_text.text("Processing image...")
@@ -313,7 +310,7 @@ if app_mode == "Single Image Analysis":
                 image = Image.open(uploaded_file)
                 img_array = np.array(image)
                 
-                # Check if image is grayscale and convert accordingly
+                
                 if len(img_array.shape) == 2:
                     img_array = cv2.cvtColor(img_array, cv2.COLOR_GRAY2BGR)
                 elif img_array.shape[2] == 4:  # If RGBA
