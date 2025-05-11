@@ -11,9 +11,70 @@ model = load_model('model.h5')
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
+# Custom CSS for modern UI
+st.markdown("""
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            padding: 10px;
+        }
+        .stTitle {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: #333;
+        }
+        .stMarkdown {
+            text-align: center;
+            font-size: 20px;
+            color: #555;
+        }
+        .stSidebar {
+            background-color: #2C3E50;
+            color: #fff;
+        }
+        .stButton, .stCheckbox {
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .stButton:hover, .stCheckbox:hover {
+            background-color: #2980b9;
+        }
+        .stImage {
+            border: 5px solid #3498db;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        .stAlert {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .stSuccess {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .stWarning {
+            background-color: #f39c12;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Set Streamlit page config
 st.set_page_config(page_title="Emotion Detection from Image", layout="centered")
-st.title("🧠 Facial Emotion Detection from Uploaded Image")
-st.markdown("Upload an image to detect the emotion of faces present in it.")
+
+# App title
+st.markdown('<p class="stTitle">🧠 Facial Emotion Detection from Uploaded Image</p>', unsafe_allow_html=True)
+st.markdown('<p class="stMarkdown">Upload an image to detect the emotion of faces present in it.</p>', unsafe_allow_html=True)
 
 # Sidebar options
 st.sidebar.header("Options")
@@ -35,7 +96,7 @@ if uploaded_file is not None:
 
     # If faces are detected
     if len(faces) == 0:
-        st.warning("No faces detected in the image.")
+        st.markdown('<div class="stAlert">No faces detected in the image.</div>', unsafe_allow_html=True)
     
     # Process each face in the image
     for (x, y, w, h) in faces:
@@ -56,10 +117,10 @@ if uploaded_file is not None:
             face_img = Image.fromarray(roi_color)
             filename = os.path.join(image_dir, f"{label}_{int(time.time())}.jpg")
             face_img.save(filename)
-            st.sidebar.success(f"Saved face image: {filename}")
+            st.markdown(f'<div class="stSuccess">Saved face image: {filename}</div>', unsafe_allow_html=True)
 
     # Display image with bounding box and label
     st.image(img_array, caption="Processed Image", use_container_width=True)
 
 else:
-    st.info("Please upload an image to start the emotion detection.")
+    st.markdown('<div class="stWarning">Please upload an image to start the emotion detection.</div>', unsafe_allow_html=True)
