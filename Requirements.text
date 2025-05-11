@@ -1,2 +1,7 @@
 streamlit
-opencv-python-headless numpy
+opencv-python
+numpy
+tensorflow
+keras
+matplotlib
+
