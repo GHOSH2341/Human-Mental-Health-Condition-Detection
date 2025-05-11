@@ -6,6 +6,9 @@ from PIL import Image
 import os
 import time
 
+# Set Streamlit page config as the first command
+st.set_page_config(page_title="Emotion Detection from Image", layout="centered")
+
 # Load model and Haar Cascade
 model = load_model('model.h5')
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -68,9 +71,6 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-
-# Set Streamlit page config
-st.set_page_config(page_title="Emotion Detection from Image", layout="centered")
 
 # App title
 st.markdown('<p class="stTitle">🧠 Facial Emotion Detection from Uploaded Image</p>', unsafe_allow_html=True)
