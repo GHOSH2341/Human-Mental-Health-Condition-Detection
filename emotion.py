@@ -7,23 +7,25 @@ import os
 import time
 import base64
 from datetime import datetime
+import pandas as pd
 
 # Set Streamlit page config as the first command
 st.set_page_config(
-    page_title="Emotion Detection",
-    page_icon="😀",
+    page_title="Mental Health Screening",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # Define custom color scheme
-primary_color = "#4F46E5"  # Indigo
-secondary_color = "#7C3AED"  # Purple
+primary_color = "#3B82F6"  # Blue
+secondary_color = "#8B5CF6"  # Purple
 light_bg = "#F9FAFB"
 dark_bg = "#1E293B"
 success_color = "#10B981"  # Green
 warning_color = "#F59E0B"  # Amber
 error_color = "#EF4444"  # Red
+info_color = "#06B6D4"    # Cyan
 
 # Apply custom CSS
 st.markdown("""
@@ -41,7 +43,7 @@ st.markdown("""
     
     /* Buttons */
     .stButton > button {
-        background-color: #4F46E5;
+        background-color: #3B82F6;
         color: white;
         border-radius: 8px;
         padding: 0.5rem 1rem;
@@ -50,17 +52,17 @@ st.markdown("""
         transition: all 0.3s ease;
     }
     .stButton > button:hover {
-        background-color: #4338CA;
+        background-color: #2563EB;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         transform: translateY(-1px);
     }
     
     /* File uploader */
     .uploadedFile {
-        border: 2px dashed #4F46E5;
+        border: 2px dashed #3B82F6;
         border-radius: 12px;
         padding: 20px;
-        background-color: rgba(79, 70, 229, 0.1);
+        background-color: rgba(59, 130, 246, 0.1);
     }
     
     /* Sidebar */
@@ -79,7 +81,17 @@ st.markdown("""
     
     /* Progress bar */
     .stProgress > div > div > div > div {
-        background-color: #4F46E5;
+        background-color: #3B82F6;
+    }
+    
+    /* Disclaimer */
+    .disclaimer {
+        background-color: #EFF6FF;
+        border-left: 4px solid #3B82F6;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
     }
     
     /* Status messages */
@@ -104,36 +116,65 @@ st.markdown("""
         border-radius: 8px;
         border-left: 4px solid #EF4444;
     }
+    .status-info {
+        background-color: #ECFEFF;
+        color: #155E75;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #06B6D4;
+    }
     
-    /* Emotion labels */
-    .emotion-label {
+    /* Mental health indicator labels */
+    .indicator-label {
         color: white;
         font-weight: 600;
         padding: 0.25rem 0.75rem;
         border-radius: 9999px;
         display: inline-block;
         font-size: 0.875rem;
+        margin-right: 5px;
+        margin-bottom: 5px;
     }
-    .emotion-angry {
-        background-color: #EF4444;
+    .indicator-depression {
+        background-color: #6B7280;  /* Gray */
     }
-    .emotion-disgust {
-        background-color: #84CC16;
+    .indicator-anxiety {
+        background-color: #F59E0B;  /* Amber */
     }
-    .emotion-fear {
-        background-color: #6366F1;
+    .indicator-stress {
+        background-color: #EF4444;  /* Red */
     }
-    .emotion-happy {
-        background-color: #F59E0B;
+    .indicator-wellbeing {
+        background-color: #10B981;  /* Green */
     }
-    .emotion-sad {
-        background-color: #64748B;
+    .indicator-neutral {
+        background-color: #3B82F6;  /* Blue */
     }
-    .emotion-surprise {
-        background-color: #EC4899;
+    .indicator-concern {
+        background-color: #8B5CF6;  /* Purple */
     }
-    .emotion-neutral {
-        background-color: #6B7280;
+    
+    /* Risk level indicators */
+    .risk-low {
+        background-color: #10B981;  /* Green */
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+    }
+    .risk-moderate {
+        background-color: #F59E0B;  /* Amber */
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+    }
+    .risk-high {
+        background-color: #EF4444;  /* Red */
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
     }
     
     /* Statistics area */
@@ -155,13 +196,42 @@ st.markdown("""
     .stat-value {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #4F46E5;
+        color: #3B82F6;
     }
     
     /* Image display */
     .stImage {
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    /* Table styling */
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+    .styled-table thead tr {
+        background-color: #3B82F6;
+        color: #ffffff;
+        text-align: left;
+    }
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+    }
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #3B82F6;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -184,23 +254,82 @@ if model is None or face_cascade is None or face_cascade.empty():
     st.error("Critical error: Required detection resources couldn't be loaded. Please check file paths.")
     st.stop()
 
-# Constants
+# Map emotions to mental health indicators
+# Note: This is a simplified model for demonstration purposes only
+# In a real application, this would be based on clinical research
 emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+
+# Mapping from emotions to mental health indicators
+mental_health_map = {
+    'Angry': 'Stress',
+    'Disgust': 'Concern',
+    'Fear': 'Anxiety',
+    'Happy': 'Wellbeing',
+    'Sad': 'Depression',
+    'Surprise': 'Neutral',
+    'Neutral': 'Neutral'
+}
+
+# Define mental health indicators
+indicators = ['Depression', 'Anxiety', 'Stress', 'Wellbeing', 'Neutral', 'Concern']
+
+# Colors for emotions and indicators
 emotion_colors = {
     'Angry': '#EF4444',
-    'Disgust': '#84CC16',
-    'Fear': '#6366F1',
-    'Happy': '#F59E0B',
-    'Sad': '#64748B',
-    'Surprise': '#EC4899',
-    'Neutral': '#6B7280'
+    'Disgust': '#8B5CF6',
+    'Fear': '#F59E0B',
+    'Happy': '#10B981',
+    'Sad': '#6B7280',
+    'Surprise': '#3B82F6',
+    'Neutral': '#3B82F6'
 }
+
+indicator_colors = {
+    'Depression': '#6B7280',  # Gray
+    'Anxiety': '#F59E0B',     # Amber
+    'Stress': '#EF4444',      # Red
+    'Wellbeing': '#10B981',   # Green
+    'Neutral': '#3B82F6',     # Blue
+    'Concern': '#8B5CF6'      # Purple
+}
+
+# Define threshold values for risk assessment
+risk_thresholds = {
+    'Depression': {'low': 0.3, 'moderate': 0.6},
+    'Anxiety': {'low': 0.3, 'moderate': 0.6},
+    'Stress': {'low': 0.3, 'moderate': 0.6}
+}
+
+# Helper function to assess risk level based on scores
+def assess_risk_level(indicator, score):
+    if indicator not in risk_thresholds:
+        return "Not applicable"
+    
+    thresholds = risk_thresholds[indicator]
+    if score < thresholds['low']:
+        return "Low"
+    elif score < thresholds['moderate']:
+        return "Moderate"
+    else:
+        return "High"
 
 # App header section
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.title("Facial Emotion Detection")
-    st.markdown("Upload an image to analyze the emotions of faces")
+    st.title("Mental Health Screening")
+    st.markdown("Facial expression analysis for mental health indicators")
+    
+    # Add disclaimer
+    st.markdown(
+        """
+        <div class="disclaimer">
+        <strong>Important Disclaimer:</strong> This application is for educational and demonstration purposes only. 
+        It analyzes facial expressions to suggest possible mental health indicators but is not a diagnostic tool. 
+        Always consult qualified mental health professionals for proper evaluation and diagnosis.
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
 
 # Define sidebar
 with st.sidebar:
@@ -209,25 +338,25 @@ with st.sidebar:
     # Application modes
     app_mode = st.radio(
         "Choose Mode",
-        ["Single Image Analysis", "Batch Processing"]
+        ["Individual Screening", "Group Analysis", "Longitudinal Tracking"]
     )
     
     st.markdown("---")
     
-    # Detection settings
-    st.subheader("Detection Settings")
+    # Analysis settings
+    st.subheader("Analysis Settings")
     
-    detection_confidence = st.slider(
-        "Detection Confidence",
+    assessment_sensitivity = st.slider(
+        "Assessment Sensitivity",
         min_value=0.0,
         max_value=1.0,
-        value=0.5,
+        value=0.6,
         step=0.05,
-        help="Minimum confidence score for emotion detection"
+        help="Sensitivity level for mental health indicator assessment"
     )
     
     scale_factor = st.slider(
-        "Scale Factor",
+        "Face Detection Scale",
         min_value=1.05,
         max_value=1.5,
         value=1.1,
@@ -236,25 +365,68 @@ with st.sidebar:
     )
     
     min_neighbors = st.slider(
-        "Minimum Neighbors",
+        "Detection Precision",
         min_value=1,
         max_value=10,
         value=5,
-        help="Minimum neighbors for face detection"
+        help="Higher values mean fewer but more precise detections"
     )
+    
+    # Risk assessment options
+    st.markdown("---")
+    st.subheader("Risk Assessment")
+    
+    enable_risk_assessment = st.checkbox("Enable Risk Assessment", value=True)
+    
+    if enable_risk_assessment:
+        risk_threshold_depression = st.slider(
+            "Depression Risk Threshold",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.6,
+            step=0.05,
+            help="Threshold for depression risk assessment"
+        )
+        
+        risk_threshold_anxiety = st.slider(
+            "Anxiety Risk Threshold",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.6,
+            step=0.05,
+            help="Threshold for anxiety risk assessment"
+        )
+        
+        risk_threshold_stress = st.slider(
+            "Stress Risk Threshold",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.6,
+            step=0.05,
+            help="Threshold for stress risk assessment"
+        )
+        
+        # Update thresholds based on user settings
+        risk_thresholds = {
+            'Depression': {'low': risk_threshold_depression * 0.5, 'moderate': risk_threshold_depression},
+            'Anxiety': {'low': risk_threshold_anxiety * 0.5, 'moderate': risk_threshold_anxiety},
+            'Stress': {'low': risk_threshold_stress * 0.5, 'moderate': risk_threshold_stress}
+        }
     
     st.markdown("---")
     
     # File options
     st.subheader("File Options")
-    save_images = st.checkbox("Save Detected Faces", value=False)
+    save_data = st.checkbox("Save Assessment Data", value=False)
     
-    if save_images:
+    if save_data:
         save_directory = st.text_input(
             "Save Directory",
-            value="detected_faces",
-            help="Directory where detected faces will be saved"
+            value="assessment_data",
+            help="Directory where assessment data will be saved"
         )
+        
+        include_images = st.checkbox("Include Face Images", value=False)
         
         # Create directory if it doesn't exist
         os.makedirs(save_directory, exist_ok=True)
@@ -263,20 +435,57 @@ with st.sidebar:
     
     # Display options
     st.subheader("Display Options")
-    show_confidence = st.checkbox("Show Confidence Score", value=True)
-    show_bounding_boxes = st.checkbox("Show Bounding Boxes", value=True)
+    show_scores = st.checkbox("Show Indicator Scores", value=True)
+    show_bounding_boxes = st.checkbox("Show Face Detection", value=True)
+    show_raw_emotions = st.checkbox("Show Raw Emotions", value=False)
     bounding_box_thickness = st.slider("Box Thickness", 1, 5, 2)
     
-    # About section
+    # Information section
     st.markdown("---")
-    st.markdown("### About")
+    st.markdown("### Information")
     st.info(
-        "This application uses a pre-trained convolutional neural network "
-        "to detect emotions from facial expressions in images."
+        "This screening tool uses facial expression analysis to identify potential mental health indicators. "
+        "It should be used as part of a comprehensive assessment by qualified professionals."
     )
+    
+    # Reference Legend
+    st.markdown("### Indicators Legend")
+    
+    for indicator, color in indicator_colors.items():
+        st.markdown(
+            f'<span class="indicator-label" style="background-color: {color}">{indicator}</span>',
+            unsafe_allow_html=True
+        )
+
+# Define helper function for mental health assessment
+def perform_mental_health_assessment(emotions_list, confidence_scores):
+    """
+    Convert emotion detections to mental health indicators with appropriate weightings
+    """
+    # Initialize indicators with zeros
+    indicator_scores = {indicator: 0.0 for indicator in indicators}
+    
+    # Map emotions to indicators and accumulate scores
+    for emotion, confidence in zip(emotions_list, confidence_scores):
+        indicator = mental_health_map[emotion]
+        indicator_scores[indicator] += confidence
+    
+    # Normalize scores if we have any emotions detected
+    if emotions_list:
+        total = sum(indicator_scores.values())
+        if total > 0:
+            indicator_scores = {k: v/total for k, v in indicator_scores.items()}
+    
+    # Calculate risk levels for relevant indicators
+    risk_levels = {}
+    for indicator in ['Depression', 'Anxiety', 'Stress']:
+        if indicator in indicator_scores:
+            risk_levels[indicator] = assess_risk_level(indicator, indicator_scores[indicator])
+    
+    return indicator_scores, risk_levels
 
 # Main content based on selected mode
-if app_mode == "Single Image Analysis":
+if app_mode == "Individual Screening":
     # Create two columns layout
     col1, col2 = st.columns([1, 1])
     
@@ -286,7 +495,7 @@ if app_mode == "Single Image Analysis":
         uploaded_file = st.file_uploader(
             "Choose an image...",
             type=["jpg", "jpeg", "png"],
-            help="Upload a clear image containing faces"
+            help="Upload a clear image containing the person's face"
         )
         st.markdown('</div>', unsafe_allow_html=True)
     
@@ -437,28 +646,7 @@ if app_mode == "Single Image Analysis":
                             unsafe_allow_html=True
                         )
                     else:
-                        # Display detected image
-                        st.image(display_img, use_column_width=True)
-                        
-                        # Show statistics
-                        st.markdown("### Statistics")
-                        
-                        # Calculate emotion distribution
-                        emotion_counts = {emotion: detected_emotions.count(emotion) for emotion in emotions}
-                        total_faces = len(faces)
-                        
-                        # Display emotion distribution in a nice format
-                        st.markdown('<div class="stats-container">', unsafe_allow_html=True)
-                        
-                        for emotion in emotions:
-                            count = emotion_counts.get(emotion, 0)
-                            if count > 0:
-                                percentage = (count / total_faces) * 100
-                                st.markdown(
-                                    f'<div class="stat-card">'
-                                    f'<div class="stat-value">{count}</div>'
-                                    f'<div class="emotion-label" style="background-color: {emotion_colors[emotion]}">{emotion}</div>'
-                                    f'<div>{percentage:.1f}%</div>'
+
                                     f'</div>',
                                     unsafe_allow_html=True
                                 )
