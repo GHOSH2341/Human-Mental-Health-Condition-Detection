@@ -214,7 +214,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-   s
+   
     st.subheader("Detection Settings")
     
     detection_confidence = st.slider(
