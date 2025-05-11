@@ -22,8 +22,8 @@ A real-time facial emotion detection app using deep learning. This project can b
 
 ## 🚀 Demo
 
-
-🌐 Try it on [Streamlit Cloud](https://share.streamlit.io/)  
+![App Screenshot](https://github.com/GHOSH2341/Human-Mental-Health-Condition-Detection/blob/main/Screenshot%202025-05-11%20213712.png)
+🌐 [https://share.streamlit.io/](https://human-mental-health-condition-detection.streamlit.app/)
 📦 Download the dataset used: [FER2013](https://www.kaggle.com/datasets/msambare/fer2013)
 
 ---
