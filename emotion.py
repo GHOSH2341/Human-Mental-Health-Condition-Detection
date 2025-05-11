@@ -12,6 +12,11 @@ st.set_page_config(page_title="Emotion Detection from Image", layout="centered")
 # Load model and Haar Cascade
 model = load_model('model.h5')
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+# Check if the Haar cascade is loaded correctly
+if face_cascade.empty():
+    st.error("Error: Haar Cascade classifier not loaded properly. Please check the file path.")
+
 emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 # Custom CSS for modern UI
@@ -92,7 +97,9 @@ if uploaded_file is not None:
     
     # Convert image to grayscale for face detection
     gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
+    
+    # Detect faces in the image
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
     # If faces are detected
     if len(faces) == 0:
