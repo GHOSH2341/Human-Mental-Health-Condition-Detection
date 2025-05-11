@@ -24,7 +24,7 @@ os.makedirs(image_dir, exist_ok=True)
 
 # Start webcam
 FRAME_WINDOW = st.image([])
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)  # Try changing 0 to 1, 2, etc.
 
 # Temporary display delay
 time.sleep(1)
